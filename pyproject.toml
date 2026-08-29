@@ -36,6 +36,9 @@ Documentation = "https://tinydb.readthedocs.org/"
 Changelog = "https://tinydb.readthedocs.io/en/latest/changelog.html"
 Issues = "https://github.com/msiemens/tinydb/issues"
 
+[project.optional-dependencies]
+orjson = ["orjson"]
+
 [dependency-groups]
 dev = [
     "pytest~=9.0",

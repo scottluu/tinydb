@@ -7,6 +7,10 @@ import io
 import json
 import os
 import warnings
+try:
+    import orjson
+except ImportError:
+    orjson = None
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
@@ -137,6 +141,12 @@ class JSONStorage(Storage):
             self._handle.seek(0)
 
             # Load the JSON contents of the file
+            if orjson is not None:
+                try:
+                    return orjson.loads(self._handle.read())
+                except Exception:
+                    self._handle.seek(0)
+
             return json.load(self._handle)
 
     def write(self, data: dict[str, dict[str, Any]]):
@@ -144,7 +154,13 @@ class JSONStorage(Storage):
         self._handle.seek(0)
 
         # Serialize the database state using the user-provided arguments
-        serialized = json.dumps(data, **self.kwargs)
+        if orjson is not None:
+            try:
+                serialized = orjson.dumps(data, **self.kwargs).decode('utf-8')
+            except Exception:
+                serialized = json.dumps(data, **self.kwargs)
+        else:
+            serialized = json.dumps(data, **self.kwargs)
 
         # Write the serialized data to the file
         try:
